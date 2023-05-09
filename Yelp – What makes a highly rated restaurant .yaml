@@ -1,0 +1,835 @@
+schemaVersion: 2
+meta:
+  sourceVersionId: 61031e25-97cd-4f7d-aa99-8f4c7d2bd044 # DO NOT CHANGE - Hex uses this to match up project versions when reimporting the file
+  description: This is my Spring 2023 semester project for CSPB 4502. The project looks at a public dataset provided by Yelp containing ~7 million reviews. The data for this project are filtered to only include restaurant reviews.
+  projectId: a56f4b22-0ae5-4939-ae32-943ccbe20f5e # DO NOT CHANGE - Unique ID of the project from which this file was generated
+  title: "
+
+    \t\t
+
+    \t
+
+    \t
+
+    \t\t
+
+    \t\t\t
+
+    \t\t\t\t
+
+    \t\t\t\t\tYelp – What makes a highly rated restaurant? 
+
+    \t\t\t\t
+
+    \t\t\t
+
+    \t\t"
+  timezone: null
+  appTheme: LIGHT
+  codeLanguage: PYTHON
+  status:
+    name: Exploratory
+  categories: []
+  castDecimalsDefault: true
+  logicQueryCacheTimeout:
+    type: fixed
+    unit: days
+    duration: 1
+  publishedQueryCacheTimeout:
+    type: fixed
+    unit: days
+    duration: 1
+projectAssets:
+  dataConnections: []
+  envVars: []
+  secrets: []
+sharedAssets:
+  secrets: []
+  vcsPackages: []
+  dataConnections:
+    - dataConnectionId: 0279ff35-57f4-45d4-80b5-94f769c110da # CSPB 4502 (snowflake)
+    - dataConnectionId: 169b25bb-bdb9-4530-ba36-994bd87efce8 # Snowflake (snowflake)
+cells:
+  - cellType: MARKDOWN
+    cellId: cf1320b6-e9e0-4b79-8c83-c42fcdfdfe7a # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        ### Data Connection
+        To work with the large-scale data in this project, I have landed the data in Snowflake. I am using Hex's Snowpark integration to leverage Snowflake's scalable compute for query operations.
+  - cellType: CODE
+    cellId: eff1c782-f0d8-41b5-b214-2d628acf587c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        ## Snowpark 
+        import snowflake.snowpark
+        from snowflake.snowpark.session import Session
+        from snowflake.snowpark import functions as F
+        from snowflake.snowpark.functions import col
+        from snowflake.snowpark.types import StringType, DateType, TimestampType, IntegerType, StructType, StructField, FloatType
+        from snowflake.snowpark.functions import dateadd, current_date
+        from snowflake.snowpark.functions import udtf
+
+        # Connection to Snowflake db
+        import hextoolkit
+        hex_snowflake_conn = hextoolkit.get_data_connection('CSPB 4502')
+        session = hex_snowflake_conn.get_snowpark_session()
+  - cellType: MARKDOWN
+    cellId: 06c028ae-9484-4fad-b638-0b68bda9b599 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        ### Queries
+        I ran queries against the tables in Snowflake. I created a restaurant_reviews dataframe that includes review data joined with restaurant data and the sentiment scores generated below.
+  - cellType: SQL
+    cellId: 3e2dac84-efc2-4522-80e5-04cb498a8ce8 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: select count(*) from PUBLIC.REVIEWS
+      dataFrameCell: false
+      dataConnectionId: 0279ff35-57f4-45d4-80b5-94f769c110da
+      resultVariableName: dataframe
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: false
+      allowDuplicateColumns: false
+      tableDisplayConfig: null
+  - cellType: SQL
+    cellId: c46377d6-fd89-4ede-943f-fb193e3bc592 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Restaurant reviews
+    config:
+      source: |-
+        SELECT r.*, b.*, s.SENTIMENT
+        FROM PUBLIC.REVIEWS r 
+        LEFT JOIN PUBLIC.BUSINESS b ON r.BUSINESS_ID = b.BUSINESS_ID
+        LEFT JOIN PUBLIC.SENTIMENTS s ON r.REVIEW_ID = s.REVIEW_ID
+        WHERE CONTAINS(CATEGORIES, 'Restaurants')
+      dataFrameCell: false
+      dataConnectionId: 0279ff35-57f4-45d4-80b5-94f769c110da
+      resultVariableName: restaurant_reviews
+      useRichDisplay: true
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: false
+      allowDuplicateColumns: false
+      tableDisplayConfig:
+        pageSize: 12
+        height: null
+        hideIcons: false
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        filters: null
+        columnProperties:
+          - originalName: BUSINESS_ID
+            renameTo: null
+            size: 197
+            wrapText: null
+            displayFormat: null
+          - originalName: COOL
+            renameTo: null
+            size: 101
+            wrapText: null
+            displayFormat: null
+          - originalName: FUNNY
+            renameTo: null
+            size: 110
+            wrapText: null
+            displayFormat: null
+          - originalName: POSTAL_CODE
+            renameTo: null
+            size: 150
+            wrapText: null
+            displayFormat: null
+          - originalName: REVIEWS.BUSINESS_ID
+            renameTo: null
+            size: 204
+            wrapText: null
+            displayFormat: null
+          - originalName: REVIEWS.STARS
+            renameTo: null
+            size: 161
+            wrapText: null
+            displayFormat: null
+          - originalName: REVIEW_DATE
+            renameTo: null
+            size: 150
+            wrapText: null
+            displayFormat: null
+          - originalName: REVIEW_ID
+            renameTo: null
+            size: 196
+            wrapText: null
+            displayFormat: null
+          - originalName: REVIEW_TEXT
+            renameTo: null
+            size: 400
+            wrapText: null
+            displayFormat: null
+          - originalName: STARS
+            renameTo: null
+            size: 106
+            wrapText: null
+            displayFormat: null
+          - originalName: STATE
+            renameTo: null
+            size: 105
+            wrapText: null
+            displayFormat: null
+          - originalName: USEFUL
+            renameTo: null
+            size: 114
+            wrapText: null
+            displayFormat: null
+          - originalName: USER_ID
+            renameTo: null
+            size: 192
+            wrapText: null
+            displayFormat: null
+        columnOrdering: null
+  - cellType: MARKDOWN
+    cellId: d1feda94-227e-406d-8937-60fbe8fd90c8 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        ### Review Text Sentiment Analysis
+        I used the basic TextBlob pre-trained model to analyze the sentiment of the reviews. There are likely better models more fine-tuned for this task, but this one was simple to implement and behaves intuitively (i.e. stars are well correlated with sentiments). After generating the sentiment scores, which takes ~45 minutes, I wrote the results back to a table in Snowflake for future use.
+  - cellType: CODE
+    cellId: d45bacab-4cd8-4157-ab55-35ed81f5b36d # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        from textblob import TextBlob
+
+
+
+        def sentiment_analysis(text):
+            analysis = TextBlob(text)
+            return analysis.sentiment.polarity
+
+
+        restaurant_reviews["sentiment"] = restaurant_reviews["REVIEW_TEXT"].apply(
+            sentiment_analysis
+        )
+  - cellType: WRITEBACK
+    cellId: 2d00b0ba-a0c2-45e0-8d36-6761eb132888 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      dataframeName: restaurant_reviews
+      dataConnectionId: 169b25bb-bdb9-4530-ba36-994bd87efce8
+      databaseName: PC_HEX_DB
+      dynamicTableName: false
+      overwrite: true
+      runInApp: false
+      runInLogicView: false
+      runOnScheduledRun: false
+      schemaName: PUBLIC
+      tableName: review_sentiment
+  - cellType: MARKDOWN
+    cellId: 0876e70b-9012-426a-b5f4-e8af641bab30 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        ### Sentiment Analysis Review
+        You can filter and explore the reviews by state and city below by selecting data in the charts. This process will:
+
+        1. Display the reviewed restaurants on an interactive map
+        2. Display the review star ratings plotted against the sentiment analysis scores
+  - cellType: CHARTV2
+    cellId: 902ade15-5742-4a5f-a74a-e3ff3a71f79f # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Reviews by State
+    config:
+      height: null
+      chartSpec:
+        type: layered
+        layers:
+          - id: b4b020e6-58d5-44ec-a57d-32520978130b
+            xAxis:
+              sort: -y
+              type: string
+              style:
+                grid:
+                  style: solid
+                ticks: {}
+                labels: {}
+              dataFrameColumn: STATE
+            series:
+              - id: 64633cb0-3b21-4b66-b711-d4150cfdb880
+                type: bar
+                axis:
+                  type: string
+                  style:
+                    grid:
+                      style: solid
+                    ticks: {}
+                    labels: {}
+                  aggregate: count
+                dataFrameColumns:
+                  - REVIEW_ID
+                colorOrder: ascending
+                color:
+                  type: static
+                opacity:
+                  type: static
+                  value: 1
+                tooltip:
+                  type: auto
+                barWidth: 1
+                orientation: vertical
+                layout: grouped
+            dataFrame: restaurant_reviews
+        settings:
+          legend:
+            position: right
+          tooltip: true
+          selectionEnabled: true
+      chartSelection:
+        click_pointselection_:
+          - STATE: CA
+        bar_intervalselection_: {}
+      resultVariable: filtered_state
+  - cellType: CHARTV2
+    cellId: bc33d80f-96d3-4023-a0f8-d7a769b2ad0d # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Reviews by City
+    config:
+      height: null
+      chartSpec:
+        type: layered
+        layers:
+          - id: 3d634944-d38c-456a-81a8-c9a8fe703341
+            xAxis:
+              sort: -y
+              type: string
+              style:
+                grid:
+                  style: solid
+                ticks: {}
+                labels: {}
+              dataFrameColumn: CITY
+            series:
+              - id: 68586652-75eb-46e1-a07e-2c8e1a578506
+                type: bar
+                axis:
+                  type: string
+                  style:
+                    grid:
+                      style: solid
+                    ticks: {}
+                    labels: {}
+                  aggregate: count
+                dataFrameColumns:
+                  - REVIEW_ID
+                colorOrder: ascending
+                color:
+                  type: static
+                opacity:
+                  type: static
+                  value: 1
+                tooltip:
+                  type: auto
+                barWidth: 1
+                orientation: vertical
+                layout: grouped
+            dataFrame: filtered_state
+        settings:
+          legend:
+            position: right
+          tooltip: true
+          selectionEnabled: true
+      chartSelection:
+        click_pointselection_:
+          - CITY: Carpinteria
+        bar_intervalselection_: {}
+      resultVariable: filtered_city
+  - cellType: MAP
+    cellId: 0437d2bb-b6a9-492e-878d-460624bc353f # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      height: 520
+      map:
+        theme: dark
+        layers:
+          - id: 161ea625-bbd6-4aa8-b9a7-fe3787deacea
+            data:
+              coordinates:
+                system: latlng_separate
+                dataFrameLatColumn: LATITUDE
+                dataFrameLngColumn: LONGITUDE
+              dataFrameName: filtered_city
+            fill:
+              type: dynamic
+              colors:
+                - - 182
+                  - 50
+                  - 69
+                - - 30
+                  - 30
+                  - 40
+                - - 28
+                  - 134
+                  - 107
+              opacity: 1
+              dataFrameColumn: BUSINESS.STARS
+            name: Reviewed Restaurants
+            type: scatter
+            radius:
+              max: 100
+              min: 0
+              type: dynamic
+              dataFrameColumn: REVIEW_COUNT
+            opacity: 0.6
+            visible: true
+            tooltipDataFrameColumns:
+              - NAME
+              - REVIEWS.STARS
+              - SENTIMENT
+              - BUSINESS.STARS
+              - REVIEW_TEXT
+        isLegendOpen: true
+  - cellType: CHARTV2
+    cellId: 411e7852-d173-4d9a-b54a-324bf33022dd # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Average Review Stars vs Average Sentiment Analysis
+    config:
+      height: null
+      chartSpec:
+        type: layered
+        layers:
+          - id: 2b6b6869-4b2b-42e5-b037-2ecaf0fa51ae
+            xAxis:
+              type: number
+              style:
+                grid:
+                  style: solid
+                ticks: {}
+                labels: {}
+              dataFrameColumn: REVIEWS.STARS
+            series:
+              - id: bbe54a28-3f47-4ca0-ac33-6316279c3229
+                type: scatter
+                axis:
+                  type: number
+                  style:
+                    grid:
+                      style: solid
+                    ticks: {}
+                    labels: {}
+                  aggregate: average
+                dataFrameColumns:
+                  - SENTIMENT
+                colorOrder: ascending
+                color:
+                  type: static
+                opacity:
+                  type: static
+                  value: 1
+                tooltip:
+                  type: auto
+                filled: false
+            dataFrame: filtered_city
+        settings:
+          legend:
+            position: right
+          tooltip: true
+          selectionEnabled: false
+      chartSelection: {}
+      resultVariable: filter_result
+  - cellType: MARKDOWN
+    cellId: 022e7b05-2fa9-4080-a720-2605f02ab797 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        ### K-Means Clustering of Restaurant Reviewers
+        Below I have conducted K-Means clustering of reviewers who reviewed restaurants. I evaluated SSE against number of clusters and determined that three clusters was sufficient.
+
+        After completing the clustering, I created a 2D PCA to plot the clusters of restaurant reviewers.
+  - cellType: SQL
+    cellId: 4147d4f9-fc61-4b89-99d3-967502ef5a86 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Restaurant reviewers
+    config:
+      source: |-
+        SELECT *
+        FROM PUBLIC.USERS
+        WHERE USER_ID IN (
+            SELECT DISTINCT r.USER_ID
+            FROM PUBLIC.REVIEWS r
+            INNER JOIN PUBLIC.BUSINESS b
+            ON r.BUSINESS_ID = b.BUSINESS_ID
+        );
+      dataFrameCell: false
+      dataConnectionId: 0279ff35-57f4-45d4-80b5-94f769c110da
+      resultVariableName: restaurant_reviewers
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: false
+      allowDuplicateColumns: false
+      tableDisplayConfig: null
+  - cellType: CODE
+    cellId: cc959a1d-e421-4fb3-b8af-2ea18654e8e6 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |
+        import pandas as pd
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from sklearn.decomposition import PCA
+        from sklearn.cluster import KMeans
+        from sklearn.preprocessing import StandardScaler
+
+        df_kmeans = restaurant_reviewers.drop(["USER_ID", "NAME"], axis=1)
+
+        # Extracting year from 'YELPING_SINCE' column
+        df_kmeans['YELPING_SINCE'] = pd.to_datetime(df['YELPING_SINCE']).dt.year
+
+        # Scaling features
+        scaler = StandardScaler()
+        scaled_df_kmeans = scaler.fit_transform(df_kmeans)
+  - cellType: CODE
+    cellId: 251908c2-a477-447b-967f-17e243c01199 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        import matplotlib.pyplot as plt
+        # determine ideal number of clusters
+
+        # use sampled data to speed up clustering
+        df_kmeans_sample = df_kmeans.sample(n=100000)
+        scaled_df_kmeans_sample = scaler.fit_transform(df_kmeans_sample)
+
+        kmeans_kwargs = {
+            "init": "random",
+            "n_init": 10,
+            "max_iter": 300,
+            "random_state": 406,
+        }
+
+        sse = [] # list containing sum of squared error for each cluster iteration
+        for k in range(1, 11):
+            kmeans = KMeans(n_clusters=k, **kmeans_kwargs)
+            kmeans.fit(scaled_df_kmeans_sample)
+            sse.append(kmeans.inertia_)
+
+
+        elbow_data = list(zip(range(1,11), sse))
+        elbow_df = pd.DataFrame(elbow_data, columns=['n_clusters', 'sse'])
+  - cellType: CHARTV2
+    cellId: 9d818711-5bb2-4df9-bbd8-265b61dbe221 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Elbow Analysis
+    config:
+      height: null
+      chartSpec:
+        type: layered
+        layers:
+          - id: 014e0972-574a-4a53-80f6-44dc0ed1f52e
+            xAxis:
+              type: number
+              style:
+                grid:
+                  style: solid
+                ticks: {}
+                labels: {}
+              dataFrameColumn: n_clusters
+            series:
+              - id: b72a38dd-baf9-4a27-98d3-17930c49cb17
+                type: line
+                axis:
+                  type: number
+                  style:
+                    grid:
+                      style: solid
+                    ticks: {}
+                    labels: {}
+                  aggregate: sum
+                dataFrameColumns:
+                  - sse
+                colorOrder: ascending
+                color:
+                  type: static
+                opacity:
+                  type: static
+                  value: 1
+                tooltip:
+                  type: auto
+                point: false
+                stroke: solid
+            dataFrame: elbow_df
+        settings:
+          legend:
+            position: right
+          tooltip: true
+          selectionEnabled: false
+      chartSelection: {}
+      resultVariable: filter_result_2
+  - cellType: CODE
+    cellId: cc13e5b4-4021-4cdf-8a0c-590ab3c53436 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |+
+        import pandas as pd
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from sklearn.decomposition import PCA
+        from sklearn.cluster import KMeans
+        from sklearn.preprocessing import StandardScaler
+
+
+
+        # Perform K-means clustering (let's assume the number of clusters is 5)
+        kmeans = KMeans(n_clusters=3)
+        kmeans.fit(scaled_df_kmeans)
+
+        # Add cluster labels to the original DataFrame
+        restaurant_reviewers['cluster'] = kmeans.labels_
+
+
+
+
+  - cellType: CODE
+    cellId: 3cbc511b-6508-467c-be5b-0e1734ab124b # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # Perform PCA for dimensionality reduction
+        pca = PCA(n_components=2)
+        pca_result = pca.fit_transform(scaled_df_kmeans)
+
+        # Create a scatter plot with the PCA results and color by cluster
+        plt.figure(figsize=(10, 6), facecolor='white')
+        plt.scatter(pca_result[:, 0], pca_result[:, 1], c=restaurant_reviewers['cluster'], cmap='viridis', alpha=0.5)
+        plt.xlabel('Principal Component 1')
+        plt.ylabel('Principal Component 2')
+        plt.title('K-means Clustering with 3 Clusters (PCA reduced)')
+
+        # Add gridlines
+        plt.grid(True)
+
+        # Set the background color to white
+        plt.gca().set_facecolor('white')
+
+        # Show the plot
+        plt.show()
+  - cellType: CODE
+    cellId: 738595bc-8ded-46b3-8174-f541bb3e9cd0 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        # Create a new DataFrame from the PCA results
+        pca_df = pd.DataFrame(data=pca_result, columns=['Principal Component 1', 'Principal Component 2'])
+
+        # Add the cluster labels to the new DataFrame
+        pca_df['Cluster'] = restaurant_reviewers['cluster'].values
+  - cellType: CHARTV2
+    cellId: b7faf8d4-0ac0-4652-b57a-4c935c59c154 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      height: null
+      chartSpec:
+        type: layered
+        layers:
+          - id: 2b4b76ff-9b20-45e3-b1b7-edea9c048e78
+            xAxis:
+              sort: descending
+              type: number
+              style:
+                max: 2000
+                min: 0
+                grid:
+                  style: solid
+                ticks: {}
+                labels: {}
+              dataFrameColumn: Principal Component 1
+            series:
+              - id: bdd4ddbc-6cfc-4b84-958c-69f99734ee65
+                type: scatter
+                axis:
+                  type: number
+                  style:
+                    max: 2000
+                    min: -500
+                    grid:
+                      style: solid
+                    ticks: {}
+                    labels: {}
+                dataFrameColumns:
+                  - Principal Component 2
+                colorOrder: []
+                color:
+                  type: dataframe
+                  dataType: number
+                  dataFrameColumn: Cluster
+                opacity:
+                  type: static
+                  value: 1
+                tooltip:
+                  type: auto
+                filled: true
+            dataFrame: pca_df
+        settings:
+          legend:
+            position: right
+          tooltip: true
+          selectionEnabled: false
+      chartSelection: {}
+      resultVariable: filter_result
+appLayout:
+  fullWidth: false
+  visibleMetadataFields:
+    - NAME
+    - DESCRIPTION
+    - AUTHOR
+    - LAST_EDITED
+    - LAST_RUN
+    - CATEGORIES
+    - STATUS
+    - TABLE_OF_CONTENTS
+  rows:
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: false
+              hideOutput: false
+              type: CELL
+              cellId: cf1320b6-e9e0-4b79-8c83-c42fcdfdfe7a
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: false
+              hideOutput: false
+              type: CELL
+              cellId: 06c028ae-9484-4fad-b638-0b68bda9b599
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: true
+              hideOutput: false
+              type: CELL
+              cellId: c46377d6-fd89-4ede-943f-fb193e3bc592
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: false
+              hideOutput: false
+              type: CELL
+              cellId: d1feda94-227e-406d-8937-60fbe8fd90c8
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: false
+              hideOutput: false
+              type: CELL
+              cellId: d45bacab-4cd8-4157-ab55-35ed81f5b36d
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: false
+              hideOutput: false
+              type: CELL
+              cellId: 0876e70b-9012-426a-b5f4-e8af641bab30
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: false
+              hideOutput: false
+              type: CELL
+              cellId: 902ade15-5742-4a5f-a74a-e3ff3a71f79f
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: false
+              hideOutput: false
+              type: CELL
+              cellId: bc33d80f-96d3-4023-a0f8-d7a769b2ad0d
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: false
+              hideOutput: false
+              type: CELL
+              cellId: 0437d2bb-b6a9-492e-878d-460624bc353f
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: false
+              hideOutput: false
+              type: CELL
+              cellId: 411e7852-d173-4d9a-b54a-324bf33022dd
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: false
+              hideOutput: false
+              type: CELL
+              cellId: 022e7b05-2fa9-4080-a720-2605f02ab797
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: true
+              hideOutput: false
+              type: CELL
+              cellId: 4147d4f9-fc61-4b89-99d3-967502ef5a86
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: false
+              hideOutput: false
+              type: CELL
+              cellId: 9d818711-5bb2-4df9-bbd8-265b61dbe221
+              height: null
+              showLabel: true
+    - columns:
+        - start: 0
+          end: 120
+          elements:
+            - showSource: false
+              hideOutput: false
+              type: CELL
+              cellId: 3cbc511b-6508-467c-be5b-0e1734ab124b
+              height: null
+              showLabel: true
